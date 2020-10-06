@@ -18,4 +18,17 @@ describe Oystercard do
       expect { subject.top_up 91 }.to raise_error('You cannot have more than £90 in your balance')
     end
   end
+
+  describe '#deduct' do
+
+    it { is_expected.to respond_to(:deduct).with(1).argument }
+
+    it 'deducts the fare from the balance' do
+      subject.top_up(25)
+      expect { subject.deduct 5 }.to change{ subject.balance }.by -5
+    end
+
+
+
+  end
 end
