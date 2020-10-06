@@ -2,13 +2,14 @@ require 'oystercard'
 
 describe Oystercard do
 
+  let(:station) {double :station}
+
   it 'checks that the oystercard has an initial value of 0' do
   expect(subject.balance).to eq 0
   end
 
-  describe '#top_up' do
 
-    it { is_expected.to respond_to(:top_up).with(1).argument }
+  describe '#top_up' do
 
     it 'checks that the top up method can increase the balance' do
       expect { subject.top_up 5 }.to change{ subject.balance }.by 5
@@ -19,25 +20,16 @@ describe Oystercard do
     end
   end
 
-  describe '#in_journey?' do
-    it { is_expected.to respond_to(:in_journey?) }
-
-    it 'return false by default' do
-      expect(subject.in_journey?).to eq false
-    end
-  end
-
   describe '#touch_in' do
-    it { is_expected.to respond_to(:touch_in) }
-
-    it 'returns in_journey as true' do
-      subject.top_up(20)
-      subject.touch_in
-      expect(subject).to be_in_journey
-    end
 
     it 'raises an error when insufficient balance' do
-      expect { subject.touch_in }.to raise_error("Insufficient balance.")
+      expect { subject.touch_in(station) }.to raise_error("Insufficient balance.")
+    end
+
+    it 'should store the entry station' do
+      subject.top_up(20)
+      subject.touch_in(station)
+      expect(subject.entry_station).to eq station
     end
 
   end
@@ -47,17 +39,18 @@ describe Oystercard do
 
     before do
       subject.top_up(20)
-      subject.touch_in
-    end
-
-    it 'returns in_journey as false' do
-      subject.touch_out
-      expect(subject).not_to be_in_journey
+      subject.touch_in(station)
     end
 
     it 'deducts the fare' do
       expect { subject.touch_out }.to change { subject.balance }.by(-Oystercard::MIN_FARE)
     end
+
+    it 'resets the entry_station to nil' do
+      subject.touch_out
+      expect(subject.entry_station).to eq nil
+    end
+
   end
 
 end
