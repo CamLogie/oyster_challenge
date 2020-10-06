@@ -2,15 +2,15 @@
 #./spec/oystercard_spec.rb:3
 
 class Oystercard
-
-  attr_reader :balance, :entry_station
-
   MIN_FARE = 1
   MAX_BALANCE = 90
+
+  attr_reader :balance, :entry_station, :journey_history
 
   def initialize
     @balance = 0
     @entry_station = nil
+    @journey_history = []
   end
 
   def top_up(amount)
@@ -24,8 +24,9 @@ class Oystercard
     in_journey?
   end
 
-  def touch_out
+  def touch_out(station)
     deduct()
+    create_journey(station)
     @entry_station = nil
     in_journey?
   end
@@ -37,5 +38,13 @@ class Oystercard
 
   def in_journey?
     @entry_station != nil
+  end
+
+  def create_journey(station)
+    journey = {
+      entry_station: @entry_station,
+      exit_station: station
+    }
+    @journey_history << journey
   end
 end
